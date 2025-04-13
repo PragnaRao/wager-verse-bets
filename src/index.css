@@ -57,4 +57,68 @@
   .betting-button {
     @apply rounded-lg px-4 py-2 font-medium transition-all duration-200 hover:opacity-90 focus:ring-2 focus:ring-white/20;
   }
+
+  /* Style for yes percentage progress bar */
+  .yes-progress .bg-primary {
+    @apply bg-betting-green;
+  }
+
+  /* Style for no percentage progress bar */
+  .bg-betting-red\/30 + .bg-primary {
+    @apply bg-betting-green;
+  }
+}
+
+@layer utilities {
+  .bg-betting {
+    @apply bg-gradient-to-r from-blue-500 to-cyan-400;
+  }
+  
+  .bg-betting-green {
+    @apply bg-gradient-to-r from-green-500 to-green-400;
+  }
+  
+  .bg-betting-red {
+    @apply bg-gradient-to-r from-red-500 to-red-400;
+  }
+  
+  .bg-betting-purple {
+    @apply bg-gradient-to-r from-purple-500 to-purple-400;
+  }
+  
+  .bg-betting-coral {
+    @apply bg-gradient-to-r from-orange-400 to-pink-400;
+  }
+  
+  .bg-gradient-betting {
+    @apply bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-400;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+  
+  .animate-pulse-scale {
+    animation: pulseScale 2s infinite;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes pulseScale {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
 }

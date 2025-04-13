@@ -61,7 +61,6 @@ const BettingMarketCard = ({ market }: BettingMarketCardProps) => {
             <Progress 
               value={market.yesPercentage} 
               className="h-2 bg-betting-red/30" 
-              indicatorClassName="bg-betting-green" 
             />
             
             <div className="flex justify-between items-center mt-4">

@@ -103,7 +103,6 @@ const MarketDetailCard = ({ market }: MarketDetailCardProps) => {
           <Progress 
             value={market.yesPercentage} 
             className="h-3 bg-betting-red/30" 
-            indicatorClassName="bg-betting-green" 
           />
           
           <div className="flex items-center justify-center">
