@@ -1,11 +1,12 @@
-
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Wallet, TrendingUp, ArrowUpRight, ArrowDownRight, Award } from 'lucide-react';
 import { BettingMarket } from './BettingMarketCard';
-import BettingMarketCard from './BettingMarketCard';
+import { useToast } from '@/hooks/use-toast';
+import { Link } from 'react-router-dom';
 
 const mockUserBets: Array<BettingMarket & { position: 'yes' | 'no', amount: number }> = [
   {
@@ -37,10 +38,19 @@ const mockUserBets: Array<BettingMarket & { position: 'yes' | 'no', amount: numb
 ];
 
 const UserProfile = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [balance] = useState(1000);
   const [totalBets] = useState(2);
   const [totalWon] = useState(320);
   
+  const handleAddFunds = () => {
+    toast({
+      title: "Adding funds",
+      description: "This feature will be available soon!",
+    });
+  };
+
   return (
     <div className="max-w-4xl mx-auto">
       <Card className="betting-card mb-8">
@@ -69,7 +79,12 @@ const UserProfile = () => {
           </div>
           
           <div className="mt-6 flex justify-center">
-            <Button className="betting-button bg-betting">Add Funds</Button>
+            <Button 
+              className="betting-button bg-betting"
+              onClick={handleAddFunds}
+            >
+              Add Funds
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -112,6 +127,7 @@ const UserProfile = () => {
                         variant="outline" 
                         size="sm"
                         className="md:self-center whitespace-nowrap"
+                        onClick={() => navigate(`/market/${bet.id}`)}
                       >
                         View Market
                       </Button>
@@ -123,7 +139,9 @@ const UserProfile = () => {
           ) : (
             <div className="text-center py-12">
               <p className="text-muted-foreground mb-4">You don't have any active bets yet.</p>
-              <Button className="betting-button bg-betting">Explore Markets</Button>
+              <Link to="/">
+                <Button className="betting-button bg-betting">Explore Markets</Button>
+              </Link>
             </div>
           )}
         </TabsContent>
@@ -137,7 +155,9 @@ const UserProfile = () => {
         <TabsContent value="created">
           <div className="text-center py-12">
             <p className="text-muted-foreground mb-4">You haven't created any markets yet.</p>
-            <Button className="betting-button bg-betting">Create Market</Button>
+            <Link to="/create">
+              <Button className="betting-button bg-betting">Create Market</Button>
+            </Link>
           </div>
         </TabsContent>
       </Tabs>
