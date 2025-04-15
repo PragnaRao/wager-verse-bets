@@ -4,10 +4,24 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { PlusSquare, TrendingUp, User, Home, Wallet } from 'lucide-react';
 import { useWallet } from '@/hooks/useWallet';
+import { useToast } from '@/hooks/use-toast';
 
 const Navbar = () => {
+  const { toast } = useToast();
   const { isConnected, address, balance, connectWallet, disconnectWallet } = useWallet();
   
+  const handleWalletConnection = async () => {
+    if (!window.ethereum) {
+      toast({
+        title: "MetaMask Required",
+        description: "Please install MetaMask to connect your wallet",
+        variant: "destructive"
+      });
+      return;
+    }
+    await connectWallet();
+  };
+
   return (
     <nav className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-md border-b border-border/40">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
@@ -55,7 +69,7 @@ const Navbar = () => {
           ) : (
             <Button 
               className="betting-button bg-betting"
-              onClick={connectWallet}
+              onClick={handleWalletConnection}
             >
               <Wallet className="h-4 w-4 mr-2" />
               Connect Wallet
