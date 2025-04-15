@@ -1,7 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/use-auth';
 
 interface WalletState {
   isConnected: boolean;
@@ -16,6 +16,7 @@ export function useWallet() {
     balance: 0
   });
   const { toast } = useToast();
+  const { session } = useAuth();
 
   const connectWallet = async () => {
     try {
@@ -29,12 +30,37 @@ export function useWallet() {
         return;
       }
 
-      // Request account access
+      // Request account access and switch to Sepolia network
+      try {
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: '0xaa36a7' }], // Sepolia chain ID
+        });
+      } catch (switchError: any) {
+        // This error code indicates that the chain has not been added to MetaMask
+        if (switchError.code === 4902) {
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [{
+              chainId: '0xaa36a7',
+              chainName: 'Sepolia',
+              nativeCurrency: {
+                name: 'SepoliaETH',
+                symbol: 'SEP',
+                decimals: 18
+              },
+              rpcUrls: ['https://sepolia.infura.io/v3/'],
+              blockExplorerUrls: ['https://sepolia.etherscan.io']
+            }]
+          });
+        } else {
+          throw switchError;
+        }
+      }
+
       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
       const address = accounts[0];
 
-      // Get the user session
-      const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         toast({
           title: "Authentication required",
@@ -63,13 +89,13 @@ export function useWallet() {
 
       toast({
         title: "Wallet connected",
-        description: "Your wallet has been successfully connected",
+        description: "Your wallet has been successfully connected to Sepolia network",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error connecting wallet:', error);
       toast({
         title: "Connection failed",
-        description: "Failed to connect wallet. Please try again.",
+        description: error.message || "Failed to connect wallet. Please try again.",
         variant: "destructive"
       });
     }

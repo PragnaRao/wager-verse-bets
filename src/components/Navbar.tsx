@@ -1,16 +1,27 @@
-
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { PlusSquare, TrendingUp, User, Home, Wallet } from 'lucide-react';
+import { PlusSquare, TrendingUp, User, Home, Wallet, LogOut } from 'lucide-react';
 import { useWallet } from '@/hooks/useWallet';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 const Navbar = () => {
   const { toast } = useToast();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const { isConnected, address, balance, connectWallet, disconnectWallet } = useWallet();
   
   const handleWalletConnection = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to connect your wallet",
+      });
+      navigate('/auth');
+      return;
+    }
+
     if (!window.ethereum) {
       toast({
         title: "MetaMask Required",
@@ -19,7 +30,14 @@ const Navbar = () => {
       });
       return;
     }
+    
     await connectWallet();
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    disconnectWallet();
+    navigate('/auth');
   };
 
   return (
@@ -50,29 +68,47 @@ const Navbar = () => {
         </div>
         
         <div className="flex items-center space-x-4">
-          {isConnected ? (
+          {user ? (
             <>
-              <div className="px-3 py-1 rounded-full bg-secondary/50 text-sm font-medium">
-                Balance: {balance.toLocaleString()} WVTK
-              </div>
-              <Button 
-                variant="outline" 
-                className="flex items-center space-x-2"
-                onClick={disconnectWallet}
+              {isConnected ? (
+                <>
+                  <div className="px-3 py-1 rounded-full bg-secondary/50 text-sm font-medium">
+                    Balance: {balance.toLocaleString()} WVTK
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    className="flex items-center space-x-2"
+                    onClick={disconnectWallet}
+                  >
+                    <Wallet className="h-4 w-4" />
+                    <span className="hidden sm:inline">
+                      {address?.slice(0, 6)}...{address?.slice(-4)}
+                    </span>
+                  </Button>
+                </>
+              ) : (
+                <Button 
+                  className="betting-button bg-betting"
+                  onClick={handleWalletConnection}
+                >
+                  <Wallet className="h-4 w-4 mr-2" />
+                  Connect Wallet
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleSignOut}
               >
-                <Wallet className="h-4 w-4" />
-                <span className="hidden sm:inline">
-                  {address?.slice(0, 6)}...{address?.slice(-4)}
-                </span>
+                <LogOut className="h-4 w-4" />
               </Button>
             </>
           ) : (
-            <Button 
+            <Button
               className="betting-button bg-betting"
-              onClick={handleWalletConnection}
+              onClick={() => navigate('/auth')}
             >
-              <Wallet className="h-4 w-4 mr-2" />
-              Connect Wallet
+              Sign In
             </Button>
           )}
         </div>
