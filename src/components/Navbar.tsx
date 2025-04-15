@@ -2,10 +2,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { PlusSquare, TrendingUp, User, Home } from 'lucide-react';
+import { PlusSquare, TrendingUp, User, Home, Wallet } from 'lucide-react';
+import { useWallet } from '@/hooks/useWallet';
 
 const Navbar = () => {
-  const [balance] = useState(1000); // Mock balance
+  const { isConnected, address, balance, connectWallet, disconnectWallet } = useWallet();
   
   return (
     <nav className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-md border-b border-border/40">
@@ -35,10 +36,31 @@ const Navbar = () => {
         </div>
         
         <div className="flex items-center space-x-4">
-          <div className="px-3 py-1 rounded-full bg-secondary/50 text-sm font-medium">
-            Balance: {balance.toLocaleString()} WVTK
-          </div>
-          <Button className="betting-button bg-betting">Connect Wallet</Button>
+          {isConnected ? (
+            <>
+              <div className="px-3 py-1 rounded-full bg-secondary/50 text-sm font-medium">
+                Balance: {balance.toLocaleString()} WVTK
+              </div>
+              <Button 
+                variant="outline" 
+                className="flex items-center space-x-2"
+                onClick={disconnectWallet}
+              >
+                <Wallet className="h-4 w-4" />
+                <span className="hidden sm:inline">
+                  {address?.slice(0, 6)}...{address?.slice(-4)}
+                </span>
+              </Button>
+            </>
+          ) : (
+            <Button 
+              className="betting-button bg-betting"
+              onClick={connectWallet}
+            >
+              <Wallet className="h-4 w-4 mr-2" />
+              Connect Wallet
+            </Button>
+          )}
         </div>
       </div>
     </nav>
