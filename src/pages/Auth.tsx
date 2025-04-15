@@ -1,10 +1,11 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import Navbar from '@/components/Navbar';
 
 const Auth = () => {
@@ -13,6 +14,14 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { session } = useAuth();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (session) {
+      navigate('/profile');
+    }
+  }, [session, navigate]);
 
   const handleAuth = async (isSignUp: boolean) => {
     try {
@@ -31,7 +40,7 @@ const Auth = () => {
           : "You have been successfully logged in",
       });
 
-      navigate('/');
+      navigate('/profile');
     } catch (error: any) {
       toast({
         title: "Error",

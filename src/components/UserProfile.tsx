@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Wallet, TrendingUp, ArrowUpRight, ArrowDownRight, Award } from 'lucide-react';
-import { BettingMarket } from './BettingMarketCard';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { useWallet } from '@/hooks/useWallet';
 
 const mockUserBets: Array<BettingMarket & { position: 'yes' | 'no', amount: number }> = [
   {
@@ -39,11 +40,16 @@ const mockUserBets: Array<BettingMarket & { position: 'yes' | 'no', amount: numb
 
 const UserProfile = () => {
   const navigate = useNavigate();
+  const { session } = useAuth();
+  const { isConnected, address, balance, connectWallet } = useWallet();
   const { toast } = useToast();
-  const [balance] = useState(1000);
-  const [totalBets] = useState(2);
-  const [totalWon] = useState(320);
-  
+
+  useEffect(() => {
+    if (!session) {
+      navigate('/auth');
+    }
+  }, [session, navigate]);
+
   const handleAddFunds = () => {
     toast({
       title: "Adding funds",
@@ -63,17 +69,30 @@ const UserProfile = () => {
               <Wallet className="h-8 w-8 mb-2 text-betting" />
               <div className="text-2xl font-bold">{balance.toLocaleString()}</div>
               <div className="text-sm text-muted-foreground">WVTK Balance</div>
+              {!isConnected && (
+                <Button 
+                  className="mt-4 betting-button bg-betting"
+                  onClick={connectWallet}
+                >
+                  Connect Wallet
+                </Button>
+              )}
+              {isConnected && (
+                <div className="mt-2 text-sm text-muted-foreground break-all text-center">
+                  {address?.slice(0, 6)}...{address?.slice(-4)}
+                </div>
+              )}
             </div>
             
             <div className="bg-secondary/20 rounded-xl p-4 flex flex-col items-center justify-center">
               <TrendingUp className="h-8 w-8 mb-2 text-betting-coral" />
-              <div className="text-2xl font-bold">{totalBets}</div>
+              <div className="text-2xl font-bold">{2}</div>
               <div className="text-sm text-muted-foreground">Active Bets</div>
             </div>
             
             <div className="bg-secondary/20 rounded-xl p-4 flex flex-col items-center justify-center">
               <Award className="h-8 w-8 mb-2 text-betting-green" />
-              <div className="text-2xl font-bold">{totalWon.toLocaleString()}</div>
+              <div className="text-2xl font-bold">{320}</div>
               <div className="text-sm text-muted-foreground">Total Won</div>
             </div>
           </div>
